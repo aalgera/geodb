@@ -8,11 +8,18 @@ to much faster responses.
 Computer with docker and docker-compose
 
 ## Setup
-First we have to build the docker images for the database and the api service by
+Clone this project and cd into it:
+```
+git clone https://github.com/aalgera/geodb.git
+cd geodb
+```
+
+Now we have to build the docker images for the database and the api service by
 running the command:
 ```
 docker-compose build
 ```
+
 On creation of the database, polygon layers will be created for Brazilian municipalities 
 and states.
 If you want to change or add layers, edit the LAYER\_URL\_MAP the _docker-compose.yaml_ file
