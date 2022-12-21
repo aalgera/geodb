@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  geodb:
+    build: 
+      context: .
+      dockerfile: ./db/Dockerfile
+    ports:
+      - "5432:5432"
+    environment:
+      # Below environment variables are used only for database creation
+      POSTGRES_PASSWORD: geodb
+      POSTGRES_DB: geodb
+      GEODB_USER: geodb
+      GEODB_PASSWORD: geodb
+      LAYER_URL_MAP: |-
+        municipios,https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2021/Brasil/BR/BR_Municipios_2021.zip
+        ufs,https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2021/Brasil/BR/BR_UF_2021.zip
+      SRID: "4326"
+    volumes:
+      - geodb-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-U", "postgres" ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+  geoapp:
+    build: 
+      context: .
+      dockerfile: ./app/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      GEODB_HOST: geodb
+      GEODB_DB: geodb
+      GEODB_USER: geodb
+      GEODB_PASSWORD: geodb
+      SRID: "4326"
+    depends_on:
+      geodb:
+        condition: service_healthy
+
+volumes:
+  geodb-data:
