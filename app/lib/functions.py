@@ -43,7 +43,7 @@ def search_layers(cur, layers, no_header, include_coordinates):
     sql = sql + sql_from
     cur.execute(sql)
     
-    sql_copy = "copy return_csv to stdout with csv delimiter ',' quote '\"'"
+    sql_copy = "copy return_csv to stdout with csv delimiter ','"
     if no_header != "1":
         sql_copy = sql_copy + " header"
     f = io.StringIO("")

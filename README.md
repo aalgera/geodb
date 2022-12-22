@@ -39,10 +39,11 @@ docker-compose down -v
 ```
 
 ## Usage
-The api service provides 2 methods:
-- _list-layers_ lists the available layers and its attibutes. 
-  Returns a json object that can be used as input for _get_layers_
-- _get-layers_ lists atribute data for each of the configures data
+This service provides 2 methods:
+- _/geodb-api/lists_ lists the available layers and its attibutes. 
+  Returns a json object that can be used as input for _/geodb-api/search_
+- _/geodb-api/search_ searches the configured layers for polygons that match
+  the coordinates in the coordinates file
 
 The json object returned by _list-layers_ has the following format:
 ```
@@ -61,13 +62,13 @@ The json object returned by _list-layers_ has the following format:
 }
 ```
 
-You can try the swagger on http://localhost:8080/docs for testing.
+You may also want to try the swagger interface on http://localhost:8080/docs for testing.
 
 ## Examples
 
 Listing the available layers
 ```
-curl -X GET 'http://localhost:8080/list-layers'
+curl -X GET 'http://localhost:8080/geodb-api/list'
 ```
 Output:
 ```
@@ -76,7 +77,7 @@ Output:
 
 Listing the available layers with columns
 ```
-curl -X GET 'http://localhost:8080/list-layers?include_columns=1'
+curl -X GET 'http://localhost:8080/geodb-api/list?include_columns=1'
 ```
 Output:
 ```
@@ -85,14 +86,14 @@ Output:
 
 Listing specific layers with columns
 ```
-curl -X GET 'http://localhost:8080/list-layers?include_columns=1&select_layer=ufs&select_layer=municipios'
+curl -X GET 'http://localhost:8080/geodb-api/list?include_columns=1&select_layer=ufs&select_layer=municipios'
 ```
 Output:
 ```
 {"municipios":{"gid":"mun_gid","cd_mun":"mun_cd_mun","nm_mun":"mun_nm_mun","sigla":"mun_sigla","area_km2":"mun_area_km2"},"ufs":{"gid":"ufs_gid","cd_uf":"ufs_cd_uf","nm_uf":"ufs_nm_uf","sigla":"ufs_sigla","nm_regiao":"ufs_nm_regiao"}}
 ```
 
-Before being able to use the _get-layers_ method we need to create a file with some coordinates:
+Before being able to use the _search-layers_ method we need to create a file with some coordinates:
 ```
 cat <<EOM > test.csv
 id,lat,lon
@@ -105,7 +106,9 @@ EOM
 
 Getting all available columns of the ufs layer:
 ```
-curl -X 'POST' 'http://localhost:8080/get-layers' -F 'layers_def={"ufs":"*"}' -F 'file=@test.csv;type=text/csv'
+curl -X 'POST' 'http://localhost:8080/geodb-api/search' \
+     -F 'layers_def={"ufs":"*"}' \
+     -F 'coordinates_file=@test.csv;type=text/csv'
 ```
 Output:
 ```
@@ -119,9 +122,9 @@ id,ufs_gid,ufs_cd_uf,ufs_nm_uf,ufs_sigla,ufs_nm_regiao
 Using multiple layers and aliases:
 
 ```
-curl -X 'POST' 'http://localhost:8080/get-layers' \
+curl -X 'POST' 'http://localhost:8080/geodb-api/search' \
 -F 'layers_def={"municipios":{"cd_mun":"cod_ibge","nm_mun":"nom_mun","sigla":"sig_uf"},"ufs":{"nm_uf":"nom_uf","nm_regiao":"nom_regiao"}}' \
--F 'file=@test.csv;type=text/csv'
+-F 'coordinates_file=@test.csv;type=text/csv'
 ```
 Output:
 ```

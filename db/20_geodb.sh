@@ -19,7 +19,17 @@ for L in $LAYER_URL_MAP; do
     unzip $FILE
     shp2pgsql -s ${SRID:-4326} -D -I $FILE $LAYER 2>/dev/null | psql --dbname="$POSTGRES_DB"
     rm -f /tmp/*
-    psql --dbname="$POSTGRES_DB" <<EOSQL
+
+    SQL="select count(*) as cnt from $LAYER where geometrytype(geom) like '%POLYGON%'"
+    POLYGON_CNT=$(echo "$SQL" | psql --pset=tuples_only geodb)
+    if [ $POLYGON_CNT =  0 ] ; then
+        echo "Dropping layer $LAYER because it doesn't contain (multi-polygons)"
+        psql --dbname="$POSTGRES_DB" <<EOSQL
+drop table $LAYER;
+EOSQL
+    else
+        psql --dbname="$POSTGRES_DB" <<EOSQL
 grant select on $LAYER to $GEODB_USER;
 EOSQL
+    fi
 done
