@@ -43,7 +43,8 @@ This service provides 2 methods:
 - _/geodb-api/lists_ lists the available layers and its attibutes. 
   Returns a json object that can be used as input for _/geodb-api/search_
 - _/geodb-api/search_ searches the configured layers for polygons that match
-  the coordinates in the coordinates file
+  the coordinates in the coordinates file using the POST method or a single pair 
+  of coordinates using the GET method
 
 The json object returned by _list-layers_ has the following format:
 ```
@@ -93,7 +94,17 @@ Output:
 {"municipios":{"gid":"mun_gid","cd_mun":"mun_cd_mun","nm_mun":"mun_nm_mun","sigla":"mun_sigla","area_km2":"mun_area_km2"},"ufs":{"gid":"ufs_gid","cd_uf":"ufs_cd_uf","nm_uf":"ufs_nm_uf","sigla":"ufs_sigla","nm_regiao":"ufs_nm_regiao"}}
 ```
 
-Before being able to use the _search-layers_ method we need to create a file with some coordinates:
+Find data of a single point using the GET method of _search-layers_
+```
+curl -G --data-urlencode 'layers_def={"municipios":"*"}' \
+    'http://localhost:8080/geodb-api/search?lat=-15.892&lon=-47.897&include_coordinates=0'
+```
+Output:
+```
+{"id":0,"mun_gid":5572,"mun_cd_mun":"5300108","mun_nm_mun":"Brasília","mun_sigla":"DF","mun_area_km2":5760.784}
+```
+
+Before being able to use POST method of _search-layers_, we need to create a file with some coordinates:
 ```
 cat <<EOM > test.csv
 id,lat,lon
