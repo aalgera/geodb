@@ -22,3 +22,7 @@ jobs:
       run: |
         docker build . -f db/Dockerfile --tag ghcr.io/aalgera/geodb-db:latest
         docker push ghcr.io/aalgera/geodb-db:latest
+    - name: 'Build fastapi image'
+      run: |
+        docker build . -f app/Dockerfile --tag ghcr.io/aalgera/geodb-app:latest
+        docker push ghcr.io/aalgera/geodb-app:latest
