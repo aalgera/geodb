@@ -3,11 +3,24 @@ on:
   push:
     branches: [ "main" ]
 jobs:
-  build:
+  docker:
+    name: Build and push Docker images to Docker Hub
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the postgis Docker image
-      run: docker build . --file db/Dockerfile --tag geodb-db:latest
-    - name: Build the pyhton Docker image
-      run: docker build . --file app/Dockerfile --tag geodb-app:latest
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    - name: Log in to the Container registry
+      uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+     - name: Build and push postgis docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          file: {context}/db/Dockerfile
+          tags: |
+            ghcr.io/aalgera/geodb-db:0.0.1
+            ghcr.io/aalgera/geodb-db:latest.0.1
