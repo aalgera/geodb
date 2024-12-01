@@ -13,6 +13,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build the postgis Docker image
-      run: docker build db --file Dockerfile --tag geodb-db:latest
+      run: docker build db --file db/Dockerfile --tag geodb-db:latest
     - name: Build the pyhton Docker image
-      run: docker build app --file Dockerfile --tag geodb-app:latest
+      run: docker build app --file app/Dockerfile --tag geodb-app:latest
