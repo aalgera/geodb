@@ -4,8 +4,10 @@ on:
     branches: [ "main" ]
 jobs:
   docker:
-    name: Build and push Docker images to Docker Hub
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
     steps:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
@@ -13,14 +15,9 @@ jobs:
       uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
       with:
         registry: ghcr.io
-        username: ${{ github.repository_owner }}
+        username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-     - name: Build and push postgis docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          file: {context}/db/Dockerfile
-          tags: |
-            ghcr.io/aalgera/geodb-db:0.0.1
-            ghcr.io/aalgera/geodb-db:latest.0.1
+    - name: 'Build postgis image'
+      run: |
+        docker build . -f db/Dockerfile --tag ghcr.io/aalgera/geodb-db:latest
+        docker push ghcr.io/aalgera/geodb-db:latest
