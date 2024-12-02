@@ -28,8 +28,10 @@ for L in $LAYER_URL_MAP; do
 drop table $LAYER;
 EOSQL
     else
+        echo "Grant select and correct invalid geometries"
         psql --dbname="$POSTGRES_DB" <<EOSQL
 grant select on $LAYER to $GEODB_USER;
+update $LAYER set geom=st_makevalid(geom) where st_isvalid(geom)='f';
 EOSQL
     fi
 done
